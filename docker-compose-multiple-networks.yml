@@ -1,9 +1,9 @@
-version: "3"
+version: '3'
 services:
   nginx-web:
-    image: nginx:stable-alpine
+    image: nginx
     labels:
-      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+        com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
     container_name: ${NGINX_WEB:-nginx-web}
     restart: always
     ports:
@@ -15,6 +15,9 @@ services:
       - ${NGINX_FILES_PATH:-./data}/html:/usr/share/nginx/html
       - ${NGINX_FILES_PATH:-./data}/certs:/etc/nginx/certs:ro
       - ${NGINX_FILES_PATH:-./data}/htpasswd:/etc/nginx/htpasswd:ro
+    networks:
+      - default
+      - outside
     logging:
       driver: ${NGINX_WEB_LOG_DRIVER:-json-file}
       options:
@@ -28,7 +31,6 @@ services:
     restart: always
     environment:
       SSL_POLICY: ${SSL_POLICY:-Mozilla-Intermediate}
-      RESOLVERS: ${RESOLVERS}
     volumes:
       - ${NGINX_FILES_PATH:-./data}/conf.d:/etc/nginx/conf.d
       - ${NGINX_FILES_PATH:-./data}/vhost.d:/etc/nginx/vhost.d
@@ -37,6 +39,9 @@ services:
       - ${NGINX_FILES_PATH:-./data}/htpasswd:/etc/nginx/htpasswd:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
+    networks:
+      - default
+      - outside
     logging:
       driver: ${NGINX_GEN_LOG_DRIVER:-json-file}
       options:
@@ -44,7 +49,7 @@ services:
         max-file: ${NGINX_GEN_LOG_MAX_FILE:-10}
 
   nginx-letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion:stable
+    image: jrcs/letsencrypt-nginx-proxy-companion
     container_name: ${LETS_ENCRYPT:-nginx-letsencrypt}
     restart: always
     volumes:
@@ -56,10 +61,9 @@ services:
     environment:
       NGINX_DOCKER_GEN_CONTAINER: ${DOCKER_GEN:-nginx-gen}
       NGINX_PROXY_CONTAINER: ${NGINX_WEB:-nginx-web}
-      FILES_UID: ${FILES_UID}
-      FILES_GID: ${FILES_GID}
-      FILES_PERMS: ${FILES_PERMS}
-      FOLDERS_PERMS: ${FOLDERS_PERMS}
+    networks:
+      - default
+      - outside
     logging:
       driver: ${NGINX_LETSENCRYPT_LOG_DRIVER:-json-file}
       options:
@@ -70,3 +74,6 @@ networks:
   default:
     external:
       name: ${NETWORK:-webproxy}
+  outside:
+    external:
+      name: ${SERVICE_NETWORK:-webservices}
