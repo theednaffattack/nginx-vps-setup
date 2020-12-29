@@ -59,6 +59,7 @@ services:
       FILES_UID: ${FILES_UID}
       FILES_GID: ${FILES_GID}
       FILES_PERMS: ${FILES_PERMS}
+      FOLDERS_PERMS: ${FOLDERS_PERMS}
     logging:
       driver: ${NGINX_LETSENCRYPT_LOG_DRIVER:-json-file}
       options:
