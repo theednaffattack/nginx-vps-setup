@@ -1,4 +1,4 @@
-version: "3"
+version: "3.2"
 services:
   nginx-web:
     image: nginx:stable-alpine
@@ -54,13 +54,13 @@ services:
       - ${NGINX_FILES_PATH:-./nginx-data}/certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      NGINX_DOCKER_GEN_CONTAINER: ${DOCKER_GEN:-nginx-gen}
-      NGINX_PROXY_CONTAINER: ${NGINX_WEB:-nginx-web}
       DEFAULT_EMAIL: ${DEFAULT_EMAIL}
       FILES_UID: ${FILES_UID}
       FILES_GID: ${FILES_GID}
       FILES_PERMS: ${FILES_PERMS}
       FOLDERS_PERMS: ${FOLDERS_PERMS}
+      NGINX_DOCKER_GEN_CONTAINER: ${DOCKER_GEN:-nginx-gen}
+      NGINX_PROXY_CONTAINER: ${NGINX_WEB:-nginx-web}
     logging:
       driver: ${NGINX_LETSENCRYPT_LOG_DRIVER:-json-file}
       options:
